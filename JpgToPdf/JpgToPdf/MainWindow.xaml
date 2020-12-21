@@ -11,8 +11,8 @@
         <!-- Picture picker -->
         <GroupBox Header="Obrazy">
             <StackPanel>
-                <c:FilePicker Filters=".jpg|*.jpg|.png|*.png" DefaultDirectory="C:\Users\%USERNAME%\Pictures" Multiselect="True" Placeholder="Wybierz obrazy..." Height="25" OnFilePicked="FilePicker_PicturePicked" />
-                <Label x:Name="picturesInfo" Margin="0 -3 0 0" FontWeight="DemiBold" Content="Nie wybrano obrazów" />
+                <c:FilePicker Filters=".jpg|*.jpg|.jpeg|*.jpeg|.png|*.png" DefaultDirectory="C:\Users\%USERNAME%\Pictures" Multiselect="True" Placeholder="Wybierz obrazy..." Height="25" OnFilePicked="FilePicker_PicturePicked" />
+                <Label x:Name="picturesInfo" Margin="0 -3 0 0" FontWeight="DemiBold">Nie wybrano obrazów</Label>
             </StackPanel>
         </GroupBox>
 
@@ -21,14 +21,19 @@
             <c:FilePicker Filters=".pdf|*.pdf" IsSaveFileDialog="True" DefaultDirectory="C:\Users\%USERNAME%\Pictures" Placeholder="Zapisz plik pdf..." Height="25" Margin="0 3 0 0" OnFilePicked="FilePicker_OutputFilePicked" />
         </GroupBox>
 
+
+        <GroupBox Header="Postęp">
+            <StackPanel>
+                <!-- Progress bar -->
+                <StackPanel Margin="0 5 0 0">
+                    <ProgressBar x:Name="progressBar" MinHeight="25" />
+                    <Label x:Name="progressInfo" Margin="0 -3 0 0" FontWeight="DemiBold">Konwertowanie 1 z 190</Label>
+                </StackPanel>
+
+            </StackPanel>
+        </GroupBox>
+        
         <!-- Convert btn -->
-        <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="0.5*" />
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="0.5*" />
-            </Grid.ColumnDefinitions>
-            <Button x:Name="convertBtn" IsEnabled="False" Margin="0 10 0 0" Grid.Column="1" Click="ConvertBtn_Click">Konwertuj</Button>
-        </Grid>
+        <Button x:Name="convertBtn" IsEnabled="False" Margin="0 5 0 0" Grid.Column="1" Click="ConvertBtn_Click">Konwertuj</Button>
     </StackPanel>
 </Window>

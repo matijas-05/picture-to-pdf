@@ -47,7 +47,8 @@ namespace Utils.Controls
 
 				if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
 				{
-					string output = dialog.FileName + "." + dialog.Filters[0].Extensions[0];
+					// Gets full path without extenion
+					string output = Path.ChangeExtension(dialog.FileName, null) + "." + dialog.Filters[0].Extensions[0];
 					pathBox.Text = output;
 					OnFilePicked?.Invoke(Enumerable.Empty<string>().Append(output).ToArray());
 				}
