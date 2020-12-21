@@ -1,7 +1,7 @@
-﻿<Application x:Class="JpgToPdf.App"
+﻿<Application x:Class="Utils.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="clr-namespace:JpgToPdf"
+             xmlns:local="clr-namespace:Utils"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
          
