@@ -10,6 +10,7 @@ namespace PictureToPdf
 	/// </summary>
 	public partial class ProgressWindow : Window
 	{
+		// All this is to remove exit, minimize and maximize buttons from the window
 		private const int GWL_STYLE = -16;
 		private const int WS_SYSMENU = 0x80000;
 		[DllImport("user32.dll", SetLastError = true)]

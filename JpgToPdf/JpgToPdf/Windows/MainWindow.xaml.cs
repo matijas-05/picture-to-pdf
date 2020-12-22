@@ -27,8 +27,6 @@ namespace PictureToPdf
 		BackgroundWorker m_Worker;
 		bool m_Cancelled;
 
-		const float FILE_SIZE_PER_PAGE = 3.9625f;
-
 		public MainWindow()
 		{
 			InitializeComponent();
@@ -44,6 +42,22 @@ namespace PictureToPdf
 		{
 			m_OutputFolder = file[0];
 			convertBtn.IsEnabled = CanConvert();
+		}
+		bool CanConvert()
+		{
+			if (m_Pictures == null || m_Pictures.Length == 0 || string.IsNullOrEmpty(m_OutputFolder))
+				return false;
+
+			foreach (var file in m_Pictures)
+			{
+				if (!File.Exists(file))
+					return false;
+			}
+
+			if (!Directory.Exists(m_OutputFolder))
+				return false;
+
+			return true;
 		}
 
 		void ConvertBtn_Click(object sender, RoutedEventArgs e)
@@ -91,6 +105,7 @@ namespace PictureToPdf
 						ImageData imgData = ImageDataFactory.Create(m_Pictures[i]);
 						Image img = new Image(imgData);
 
+						// Rotate image if height is bigger than width (portrait)
 						if(img.GetImageWidth() > img.GetImageHeight()) img.SetRotationAngle(-1.57079633d);
 						img.SetAutoScale(true);
 						doc.Add(img);
@@ -119,7 +134,11 @@ namespace PictureToPdf
 		}
 		void Worker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
 		{
-			CloseProgressWindow();
+			// Close progress window
+			Dispatcher.BeginInvoke(new Action(() =>
+			{
+				m_ProgressWindow.Close();
+			}), DispatcherPriority.Background);
 
 			if (m_Cancelled)
 				return;
@@ -137,28 +156,5 @@ namespace PictureToPdf
 			m_Worker.CancelAsync();
 		}
 
-		void CloseProgressWindow()
-		{
-			Dispatcher.BeginInvoke(new Action(() =>
-			{
-				m_ProgressWindow.Close();
-			}), DispatcherPriority.Background);
-		}
-		bool CanConvert()
-		{
-			if (m_Pictures == null || m_Pictures.Length == 0 || string.IsNullOrEmpty(m_OutputFolder))
-				return false;
-
-			foreach (var file in m_Pictures)
-			{
-				if (!File.Exists(file))
-					return false;
-			}
-
-			if (!Directory.Exists(m_OutputFolder))
-				return false;
-
-			return true;
-		}
 	}
 }

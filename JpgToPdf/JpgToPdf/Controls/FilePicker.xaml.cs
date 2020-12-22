@@ -20,7 +20,7 @@ namespace Utils.Controls
 		public string Placeholder { get; set; }
 
 		/// <summary>
-		/// Pattern: "display_name|extension.xxx|display_name2|extension2.xxx ..."
+		/// Pattern: "display_name1|extension1|display_name2|extension2 ..."
 		/// </summary>
 		public string Filters { get; set; }
 		public string DefaultDirectory { get; set; }
@@ -35,7 +35,7 @@ namespace Utils.Controls
 
 		void Button_Click(object sender, RoutedEventArgs e)
 		{
-			if (HasEnvironmentVar(DefaultDirectory)) DefaultDirectory = Environment.ExpandEnvironmentVariables(DefaultDirectory);
+			DefaultDirectory = Environment.ExpandEnvironmentVariables(DefaultDirectory);
 
 			if (IsSaveFileDialog)
 			{
@@ -81,13 +81,6 @@ namespace Utils.Controls
 						dialog.Filters.Add(filter);
 					}
 				}
-			}
-			bool HasEnvironmentVar(string path)
-			{
-				Regex regex = new Regex(@"%[A-Za-z0-9\(\)]*%");
-				Match match = regex.Match(path);
-
-				return match.Success;
 			}
 		}
 		void pathBox_TextChanged(object sender, TextChangedEventArgs e) { }
