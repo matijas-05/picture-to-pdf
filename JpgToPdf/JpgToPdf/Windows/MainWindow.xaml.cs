@@ -90,7 +90,8 @@ namespace PictureToPdf
 
 						ImageData imgData = ImageDataFactory.Create(m_Pictures[i]);
 						Image img = new Image(imgData);
-						img.SetRotationAngle(-1.57079633d);
+
+						if(img.GetImageWidth() > img.GetImageHeight()) img.SetRotationAngle(-1.57079633d);
 						img.SetAutoScale(true);
 						doc.Add(img);
 
