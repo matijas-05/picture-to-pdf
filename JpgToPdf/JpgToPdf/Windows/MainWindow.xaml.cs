@@ -11,7 +11,8 @@ using System.Windows;
 using System.Windows.Threading;
 using System.Diagnostics;
 using System.ComponentModel;
-using System.Threading;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace PictureToPdf
 {
@@ -21,12 +22,12 @@ namespace PictureToPdf
 	public partial class MainWindow : Window
 	{
 		string[] m_Pictures;
-		string m_OutputFile;
+		string m_OutputFolder;
 		ProgressWindow m_ProgressWindow;
 		BackgroundWorker m_Worker;
 		bool m_Cancelled;
 
-		const double FILE_SIZE_PER_PAGE = 3.450549450549451d;
+		const float FILE_SIZE_PER_PAGE = 3.9625f;
 
 		public MainWindow()
 		{
@@ -37,12 +38,11 @@ namespace PictureToPdf
 		{
 			m_Pictures = files;
 			picturesInfo.Content = $"Wybrano {files.Length} obrazów {Path.GetExtension(files[0])}";
-			sizeInfo.Content = $"Końcowy rozmiar pliku ok. {Math.Round(FILE_SIZE_PER_PAGE * m_Pictures.Length, 1)} MB";
 			convertBtn.IsEnabled = CanConvert();
 		}
-		void FilePicker_OutputFilePicked(string[] file)
+		void FilePicker_OutputFolderPicked(string[] file)
 		{
-			m_OutputFile = file[0];
+			m_OutputFolder = file[0];
 			convertBtn.IsEnabled = CanConvert();
 		}
 
@@ -67,19 +67,20 @@ namespace PictureToPdf
 			m_Worker.ReportProgress(0, ("Rozpoczynanie...", ""));
 
 			// Convert to pdf
-			using (var pdfWriter = new PdfWriter(m_OutputFile))
+			for (int i = 0; i < m_Pictures.Length; i++)
 			{
-				var pdfDoc = new PdfDocument(pdfWriter);
-				using (var doc = new Document(pdfDoc))
+				using (var pdfWriter = new PdfWriter($"{m_OutputFolder}\\{Path.GetFileNameWithoutExtension(m_Pictures[i])}.pdf"))
 				{
-					for (int i = 0; i < m_Pictures.Length; i++)
+					var pdfDoc = new PdfDocument(pdfWriter);
+					using (var doc = new Document(pdfDoc))
 					{
+						// Cancelling state
 						if (m_Worker.CancellationPending)
 						{
-							m_Worker.ReportProgress(-1, ("Anulowanie...", "Może to zająć nawet kilka minut"));
+							m_Worker.ReportProgress(-1, ("Anulowanie...", ""));
 							Dispatcher.BeginInvoke(new Action(() => m_ProgressWindow.cancelBtn.IsEnabled = false), DispatcherPriority.Background);
 
-							doc.Close();
+							if (doc.GetPdfDocument().GetNumberOfPages() > 0) doc.Close();
 							pdfWriter.Dispose();
 
 							m_Worker.ReportProgress(-2, ("Anulowano", ""));
@@ -89,14 +90,18 @@ namespace PictureToPdf
 
 						ImageData imgData = ImageDataFactory.Create(m_Pictures[i]);
 						Image img = new Image(imgData);
+						img.SetRotationAngle(-1.57079633d);
+						img.SetAutoScale(true);
 						doc.Add(img);
 
 						m_Worker.ReportProgress(Convert.ToInt32((float)(i + 1) / m_Pictures.Length * 100f), ($"Konwertowanie {i + 1} z {m_Pictures.Length}:", Path.GetFileName(m_Pictures[i])));
 					}
-					Dispatcher.BeginInvoke(new Action(() => m_ProgressWindow.cancelBtn.IsEnabled = false), DispatcherPriority.Background);
-					m_Worker.ReportProgress(100, ("Kończenie...", "Może to zająć nawet kilka minut"));
 				}
 			}
+
+			// Ending state
+			Dispatcher.BeginInvoke(new Action(() => m_ProgressWindow.cancelBtn.IsEnabled = false), DispatcherPriority.Background);
+			m_Worker.ReportProgress(100, ("Usuwanie z pamięci tymczasowej...", ""));
 		}
 		void Worker_ProgressChanged(object sender, ProgressChangedEventArgs e)
 		{
@@ -119,20 +124,11 @@ namespace PictureToPdf
 				return;
 
 			// Show dialog after converting
-			var result = CustomMessageBox.ShowYesNoCancel("Zakończono konwertowanie", "Informacja", "Otwórz plik .pdf", "Otwórz folder zawierający", "Zamknij", MessageBoxImage.Information);
+			var result = CustomMessageBox.ShowOKCancel("Zakończono konwertowanie", "Informacja", "Otwórz folder", "Zamknij", MessageBoxImage.Information);
 
-			if (result == MessageBoxResult.Yes)
+			if (result == MessageBoxResult.OK)
 			{
-				Process.Start(m_OutputFile);
-			}
-			else if (result == MessageBoxResult.No)
-			{
-				Process explorer = new Process();
-
-				explorer.StartInfo.FileName = "explorer.exe";
-				explorer.StartInfo.Arguments = $"/select,\"{m_OutputFile}\"";
-
-				explorer.Start();
+				Process.Start(m_OutputFolder);
 			}
 		}
 		public void CancelConvert()
@@ -149,7 +145,7 @@ namespace PictureToPdf
 		}
 		bool CanConvert()
 		{
-			if (m_Pictures == null || m_Pictures.Length == 0 || string.IsNullOrEmpty(m_OutputFile))
+			if (m_Pictures == null || m_Pictures.Length == 0 || string.IsNullOrEmpty(m_OutputFolder))
 				return false;
 
 			foreach (var file in m_Pictures)
@@ -158,7 +154,7 @@ namespace PictureToPdf
 					return false;
 			}
 
-			if (!Directory.Exists(Directory.GetParent(m_OutputFile).FullName))
+			if (!Directory.Exists(m_OutputFolder))
 				return false;
 
 			return true;

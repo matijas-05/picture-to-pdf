@@ -55,6 +55,9 @@ namespace Utils.Controls
 			}
 			else
 			{
+				if(IsFolderPicker && Filters != null)
+					throw new InvalidOperationException($"{nameof(Filters)} cannot be set if {nameof(IsFolderPicker)} is true!");
+
 				CommonOpenFileDialog dialog = new CommonOpenFileDialog() { IsFolderPicker = this.IsFolderPicker, Multiselect = this.Multiselect, DefaultDirectory = this.DefaultDirectory };
 				FilterSetup(dialog);
 

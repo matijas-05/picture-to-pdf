@@ -16,18 +16,17 @@
                     DefaultDirectory="C:\Users\%USERNAME%\Pictures"
                     Multiselect="True" Placeholder="Wybierz obrazy..."
                     Height="25" OnFilePicked="FilePicker_PicturePicked" />
-                <Label x:Name="picturesInfo" Margin="0 -3 0 0" FontWeight="DemiBold"></Label>
+                <Label x:Name="picturesInfo" Margin="0 -3 0 0" FontWeight="DemiBold">Nie wybrano obrazów</Label>
             </StackPanel>
         </GroupBox>
 
-        <!-- Output file picker -->
-        <GroupBox Header="Plik .pdf">
+        <!-- Output folder picker -->
+        <GroupBox Header="Folder docelowy">
             <StackPanel>
-                <c:FilePicker Filters=".pdf|*.pdf" IsSaveFileDialog="True"
-                          DefaultDirectory="C:\Users\%USERNAME%\Pictures" Placeholder="Zapisz plik pdf..." 
+                <c:FilePicker IsFolderPicker="True"
+                          DefaultDirectory="C:\Users\%USERNAME%\Pictures" Placeholder="Wybierz folder docelowy..." 
                           Height="25" Margin="0 3 0 0"
-                          OnFilePicked="FilePicker_OutputFilePicked" />
-                <Label x:Name="sizeInfo" Margin="0 -3 0 0" FontWeight="DemiBold"></Label>
+                          OnFilePicked="FilePicker_OutputFolderPicked" />
             </StackPanel>
         </GroupBox>
 
